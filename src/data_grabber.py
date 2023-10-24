@@ -1,7 +1,6 @@
 import re
 import requests
 from bs4 import BeautifulSoup
-from tqdm import tqdm
 from PyPDF2 import PdfReader
 from io import BytesIO
 
@@ -38,7 +37,7 @@ def get_data(query):
     
     res = []
     failed_indices = []
-    for i, link in enumerate(tqdm(target_links, desc="Downloading papers")):
+    for i, link in target_links:
         data = _read_online_pdf(link)
         if data is not None:
             res.append(data)

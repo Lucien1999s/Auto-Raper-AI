@@ -1,10 +1,8 @@
 bs4
 requests
 pypdf2
-tqdm
 tiktoken
 openai
-python-dotenv
 googletrans==3.1.0a0
 Flask==2.2.2
 line-bot-sdk

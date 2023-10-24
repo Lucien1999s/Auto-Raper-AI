@@ -2,9 +2,9 @@ import os
 import requests
 import random
 from datetime import date
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 
-load_dotenv()
+# load_dotenv()
 
 def _get_today():
     today = date.today()
