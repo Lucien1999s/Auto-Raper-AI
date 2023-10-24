@@ -11,3 +11,6 @@ Icon?
 .Spotlight
 .Trashes
 __MACOSX
+
+Pipfile
+Pipfile.lock
