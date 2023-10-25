@@ -71,7 +71,7 @@ def handle_message(event):
         return
     
     if working_status and _check_extract(event.message.text):
-        logging.info("進入神秘地帶")
+        logging.info("進入神秘地帶啦")
         keyword = _check_extract(event.message.text)
         logging.info(f"關鍵字是:{keyword}")
         response = auto_paper_logic(keyword=keyword)
