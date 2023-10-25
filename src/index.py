@@ -82,6 +82,4 @@ def handle_message(event):
 
 
 if __name__ == "__main__":
-    # app.run()
-    res = auto_paper_logic("image recognize")
-    print(res)
+    app.run()
