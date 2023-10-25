@@ -37,7 +37,7 @@ def get_data(query):
         target_links = target_links[:5]
     if not target_links:
         logging.warn("No paper match, please change your query keyword.")
-        return
+        return None, None
     
     res = []
     failed_indices = []
