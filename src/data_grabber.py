@@ -38,10 +38,10 @@ def get_data(query):
     if not target_links:
         logging.warn("No paper match, please change your query keyword.")
         return None, None
-    
+
     res = []
     failed_indices = []
-    for i, link in target_links:
+    for i, link in enumerate(target_links):
         data = _read_online_pdf(link)
         if data is not None:
             res.append(data)
@@ -52,6 +52,4 @@ def get_data(query):
     for index in sorted(failed_indices, reverse=True):
         del target_links[index]
 
-    return res, target_links
-
-
+    return res, target_links  

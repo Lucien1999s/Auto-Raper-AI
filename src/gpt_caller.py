@@ -18,7 +18,7 @@ def _translate_en2zh(english_content):
         return f"錯誤翻譯: {e}"
 
 def _call_openai_api(prompt, temperature, max_tokens):
-    openai.api_key = "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"
+    openai.api_key = "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"
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo-16k",
         messages=[        
