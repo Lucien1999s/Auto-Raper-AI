@@ -4,9 +4,9 @@ from flask import Flask, request, abort
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
-from data_grabber import get_data
-from gpt_caller import summary_logic
-from notion_operate import post_scholar_page
+from src.data_grabber import get_data
+from src.gpt_caller import summary_logic
+from src.notion_operate import post_scholar_page
 
 line_bot_api = LineBotApi(os.getenv("ACCESS_TOKEN"))
 line_handler = WebhookHandler(os.getenv("CHANNEL_SECRET"))
