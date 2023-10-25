@@ -5,7 +5,7 @@ from flask import Flask, request, abort
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
-from src.data_grabber import get_data
+from src.data_grabber import Grabber
 from src.gpt_caller import summary_logic
 from src.notion_operate import post_scholar_page
 
@@ -14,8 +14,11 @@ line_bot_api = LineBotApi(os.getenv("ACCESS_TOKEN"))
 line_handler = WebhookHandler(os.getenv("CHANNEL_SECRET"))
 working_status = os.getenv("DEFALUT_TALKING", default="true").lower() == "true"
 
+app = Flask(__name__)
+g = Grabber()
+
 def auto_paper_logic(keyword):
-    data_list, url_list = get_data(keyword)
+    data_list, url_list = g.get_data(keyword)
     if not data_list:
         return None
     logging.info(f"Successful get data:{url_list}")
@@ -27,8 +30,6 @@ def auto_paper_logic(keyword):
 def _check_extract(s):
     matches = re.findall(r'\[(.*?)\]', s)
     return matches[0] if matches else None
-
-app = Flask(__name__)
 
 # domain root
 @app.route("/")
