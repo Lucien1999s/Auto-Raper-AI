@@ -1,4 +1,5 @@
 import re
+import os
 import openai
 import tiktoken
 from googletrans import Translator as GoogleTranslator
@@ -19,7 +20,7 @@ class LLM:
             return f"錯誤翻譯: {e}"
 
     def _call_openai_api(self, prompt, temperature, max_tokens):
-        openai.api_key = "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"
+        openai.api_key = os.getenv("OPENAI_API_KEY")
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo-16k",
             messages=[        
