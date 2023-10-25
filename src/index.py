@@ -1,5 +1,6 @@
 import os
 import re
+import logging
 from flask import Flask, request, abort
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
@@ -8,13 +9,18 @@ from src.data_grabber import get_data
 from src.gpt_caller import summary_logic
 from src.notion_operate import post_scholar_page
 
+logging.basicConfig(level=logging.INFO)
 line_bot_api = LineBotApi(os.getenv("ACCESS_TOKEN"))
 line_handler = WebhookHandler(os.getenv("CHANNEL_SECRET"))
 working_status = os.getenv("DEFALUT_TALKING", default="true").lower() == "true"
 
 def auto_paper_logic(keyword):
     data_list, url_list = get_data(keyword)
+    if not data_list:
+        return None
+    logging.info(f"Successful get data:{url_list}")
     summary_list = summary_logic(data_list=data_list)
+    logging.info(f"Successful summarize:{summary_list}")
     res = post_scholar_page(keyword,summary_list,url_list)
     return res
 
@@ -65,12 +71,14 @@ def handle_message(event):
         return
     
     if working_status and _check_extract(event.message.text):
+        logging.info("進入神秘地帶")
         keyword = _check_extract(event.message.text)
+        logging.info(f"關鍵字是:{keyword}")
         response = auto_paper_logic(keyword=keyword)
-        if int(response) != 200:
-            line_bot_api.reply_message(event.reply_token, TextSendMessage(text=f"您針對{keyword}所執行結果為:{response}，也許您搜索的關鍵字有誤或負責的AI在忙..."))
+        if response == 200:
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(text=f"您針對{keyword}所執行結果為:{response}，調研結果已由負責的AI完成，請點擊以下連結進行查看:\n{link}"))            
         else:
-            line_bot_api.reply_message(event.reply_token, TextSendMessage(text=f"您針對{keyword}所執行結果為:{response}，調研結果已由負責的AI完成，請點擊以下連結進行查看:\n{link}"))
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(text=f"您針對{keyword}所執行結果為:{response}，也許您搜索的關鍵字有誤或負責的AI在忙..."))
 
 
 if __name__ == "__main__":
