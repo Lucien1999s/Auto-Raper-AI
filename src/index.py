@@ -5,9 +5,7 @@ from flask import Flask, request, abort
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
-from src.data_grabber import Grabber
-from src.gpt_caller import summary_logic
-from src.notion_operate import post_scholar_page
+from src.bot import BOT
 
 logging.basicConfig(level=logging.INFO)
 line_bot_api = LineBotApi(os.getenv("ACCESS_TOKEN"))
@@ -15,21 +13,7 @@ line_handler = WebhookHandler(os.getenv("CHANNEL_SECRET"))
 working_status = os.getenv("DEFALUT_TALKING", default="true").lower() == "true"
 
 app = Flask(__name__)
-g = Grabber()
-
-def auto_paper_logic(keyword):
-    data_list, url_list = g.get_data(keyword)
-    if not data_list:
-        return None
-    logging.info(f"Successful get data:{url_list}")
-    summary_list = summary_logic(data_list=data_list)
-    logging.info(f"Successful summarize:{summary_list}")
-    res = post_scholar_page(keyword,summary_list,url_list)
-    return res
-
-def _check_extract(s):
-    matches = re.findall(r'\[(.*?)\]', s)
-    return matches[0] if matches else None
+bot = BOT()
 
 # domain root
 @app.route("/")
@@ -71,16 +55,18 @@ def handle_message(event):
         )
         return
     
-    if working_status and _check_extract(event.message.text):
-        logging.info("進入神秘地帶啦")
-        keyword = _check_extract(event.message.text)
-        logging.info(f"關鍵字是:{keyword}")
-        response = auto_paper_logic(keyword=keyword)
-        if response == 200:
-            line_bot_api.reply_message(event.reply_token, TextSendMessage(text=f"您針對{keyword}所執行結果為:{response}，調研結果已由負責的AI完成，請點擊以下連結進行查看:\n{link}"))            
+    if working_status:
+        logging.info("進入神秘地帶啦")        
+        matches = re.findall(r'\[(.*?)\]', event.message.text)
+        keyword = matches[0] if matches else None
+        if keyword == None:
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(text="這不在我的職責範圍內呦!您可以將要調研的關鍵字用[]表示給我🫣"))
         else:
-            line_bot_api.reply_message(event.reply_token, TextSendMessage(text=f"您針對{keyword}所執行結果為:{response}，也許您搜索的關鍵字有誤或負責的AI在忙..."))
-
+            response = bot.auto_paper_logic(keyword=keyword)
+            if response == 200:
+                line_bot_api.reply_message(event.reply_token, TextSendMessage(text=f"您針對{keyword}所執行結果為:{response}，調研結果已由負責的AI完成，請點擊以下連結進行查看:\n{link}"))            
+            else:
+                line_bot_api.reply_message(event.reply_token, TextSendMessage(text=f"您針對{keyword}所執行結果為:{response}，也許您搜索的關鍵字有誤或負責的AI在忙..."))
 
 if __name__ == "__main__":
     app.run()
